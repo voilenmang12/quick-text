@@ -22,6 +22,9 @@ Nhật ký theo dõi các thay đổi kiến trúc và quyết định thiết k
   5. **Ô Nhập Pinned Ở Dưới Cùng (Bottom Input Bar)**:
      - Ghim cố định ở chân container.
      - Hỗ trợ nhấn `Enter` để gửi ngay, `Shift + Enter` để xuống dòng, tích hợp nút dán Clipboard 1 chạm.
+  6. **Cân Bằng Chiều Cao Tuyệt Đối Giữa 2 Cột (Equal Height Stretch)**:
+     - Cấu hình `.main-layout` với `align-items: stretch` và cả 2 khối (`Session Bridge` & `Chat Workspace`) với `height: 100%`.
+     - Đường viền đáy của 2 khối luôn phẳng tắp, cân đối và thẩm mỹ tuyệt đối trên màn hình Desktop.
 
 ---
 
