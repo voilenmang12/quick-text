@@ -253,6 +253,7 @@ export const App: React.FC = () => {
 
           <TextStreamList
             messages={messages}
+            onClearStream={() => setMessages([])}
           />
         </section>
       </main>

@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
-import { Copy, Check, ExternalLink, Inbox, Smartphone, Monitor, Code, KeyRound, Globe, FileText } from 'lucide-react';
+import { Copy, Check, ExternalLink, Inbox, Smartphone, Monitor, Code, KeyRound, Globe, Trash2 } from 'lucide-react';
 import type { StreamMessage } from '../types';
 import { copyToClipboard, formatTime } from '../utils/helpers';
 
 interface TextStreamListProps {
   messages: StreamMessage[];
+  onClearStream?: () => void;
 }
 
-export const TextStreamList: React.FC<TextStreamListProps> = ({ messages }) => {
+export const TextStreamList: React.FC<TextStreamListProps> = ({ messages, onClearStream }) => {
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const handleCopy = async (id: string, text: string) => {
@@ -29,12 +30,24 @@ export const TextStreamList: React.FC<TextStreamListProps> = ({ messages }) => {
             {messages.length} {messages.length === 1 ? 'item' : 'items'}
           </span>
         </h2>
+
+        {messages.length > 0 && onClearStream && (
+          <button
+            type="button"
+            className="btn-clear-stream"
+            onClick={onClearStream}
+            title="Clear list from screen"
+          >
+            <Trash2 size={13} />
+            <span>Clear list</span>
+          </button>
+        )}
       </div>
 
       {messages.length === 0 ? (
         <div className="empty-stream" id="empty-stream-placeholder">
           <div className="empty-icon">
-            <Inbox size={22} />
+            <Inbox size={20} />
           </div>
           <div className="empty-title">No texts in this session yet</div>
           <p className="empty-subtitle">
@@ -53,44 +66,70 @@ export const TextStreamList: React.FC<TextStreamListProps> = ({ messages }) => {
                 id={`stream-card-${msg.id}`}
               >
                 <div className="card-topbar">
-                  <div className={`device-indicator ${msg.isSelf ? 'self' : 'remote'}`}>
-                    {msg.senderDevice === 'mobile' ? (
-                      <Smartphone size={14} />
-                    ) : (
-                      <Monitor size={14} />
-                    )}
-                    <span>
-                      {msg.isSelf ? 'This device' : msg.senderName}
-                    </span>
-                  </div>
+                  <div className="card-topbar-left">
+                    <div className={`device-indicator ${msg.isSelf ? 'self' : 'remote'}`}>
+                      {msg.senderDevice === 'mobile' ? (
+                        <Smartphone size={13} />
+                      ) : (
+                        <Monitor size={13} />
+                      )}
+                      <span>{msg.isSelf ? 'This device' : msg.senderName}</span>
+                    </div>
 
-                  <div className="card-meta">
+                    <span className="timestamp">{formatTime(msg.timestamp)}</span>
+
                     {msg.contentType === 'otp' && (
                       <span className="type-pill otp">
-                        <KeyRound size={11} style={{ marginRight: 3, verticalAlign: 'middle' }} />
+                        <KeyRound size={10} style={{ marginRight: 2 }} />
                         OTP
                       </span>
                     )}
                     {msg.contentType === 'url' && (
                       <span className="type-pill url">
-                        <Globe size={11} style={{ marginRight: 3, verticalAlign: 'middle' }} />
+                        <Globe size={10} style={{ marginRight: 2 }} />
                         LINK
                       </span>
                     )}
                     {msg.contentType === 'code' && (
                       <span className="type-pill code">
-                        <Code size={11} style={{ marginRight: 3, verticalAlign: 'middle' }} />
+                        <Code size={10} style={{ marginRight: 2 }} />
                         CODE
                       </span>
                     )}
-                    {msg.contentType === 'text' && (
-                      <span className="type-pill text">
-                        <FileText size={11} style={{ marginRight: 3, verticalAlign: 'middle' }} />
-                        TEXT
-                      </span>
+                  </div>
+
+                  <div className="card-topbar-actions">
+                    {msg.contentType === 'url' && (
+                      <a
+                        href={msg.text}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="open-link-btn"
+                        id={`btn-open-link-${msg.id}`}
+                      >
+                        <ExternalLink size={12} />
+                        <span>Open</span>
+                      </a>
                     )}
 
-                    <span className="timestamp">{formatTime(msg.timestamp)}</span>
+                    <button
+                      type="button"
+                      className={`copy-btn ${isCopied ? 'copied' : ''}`}
+                      id={`btn-copy-card-${msg.id}`}
+                      onClick={() => handleCopy(msg.id, msg.text)}
+                    >
+                      {isCopied ? (
+                        <>
+                          <Check size={13} />
+                          <span>COPIED</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy size={13} />
+                          <span>COPY</span>
+                        </>
+                      )}
+                    </button>
                   </div>
                 </div>
 
@@ -103,43 +142,8 @@ export const TextStreamList: React.FC<TextStreamListProps> = ({ messages }) => {
                       <code>{msg.text}</code>
                     </pre>
                   ) : (
-                    <p>{msg.text}</p>
+                    <div className="text-body">{msg.text}</div>
                   )}
-                </div>
-
-                {/* 1-Click Copy Button */}
-                <div className="card-actionbar">
-                  {msg.contentType === 'url' && (
-                    <a
-                      href={msg.text}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="open-link-btn"
-                      id={`btn-open-link-${msg.id}`}
-                    >
-                      <ExternalLink size={13} />
-                      <span>Open</span>
-                    </a>
-                  )}
-
-                  <button
-                    type="button"
-                    className={`copy-btn ${isCopied ? 'copied' : ''}`}
-                    id={`btn-copy-card-${msg.id}`}
-                    onClick={() => handleCopy(msg.id, msg.text)}
-                  >
-                    {isCopied ? (
-                      <>
-                        <Check size={14} />
-                        <span>COPIED!</span>
-                      </>
-                    ) : (
-                      <>
-                        <Copy size={14} />
-                        <span>COPY</span>
-                      </>
-                    )}
-                  </button>
                 </div>
               </article>
             );

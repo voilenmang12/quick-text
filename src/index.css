@@ -627,11 +627,82 @@ kbd {
   color: var(--text-secondary);
 }
 
-/* Stream List */
+/* Stream Section */
+.stream-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.stream-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.45rem;
+}
+
+.stream-title {
+  font-size: 0.92rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.stream-count-badge {
+  font-size: 0.72rem;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 0.12rem 0.5rem;
+  border-radius: var(--radius-full);
+  color: var(--text-secondary);
+}
+
+.btn-clear-stream {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+}
+
+.btn-clear-stream:hover {
+  color: #F87171;
+  background: rgba(239, 68, 68, 0.1);
+}
+
+/* Stream List Box with Internal Scroll */
 .stream-list {
   display: flex;
   flex-direction: column;
-  gap: 0.85rem;
+  gap: 0.45rem;
+  max-height: 420px;
+  overflow-y: auto;
+  padding-right: 0.35rem;
+  scroll-behavior: smooth;
+}
+
+/* Custom Sleek Scrollbar */
+.stream-list::-webkit-scrollbar {
+  width: 5px;
+}
+
+.stream-list::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 4px;
+}
+
+.stream-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
+}
+
+.stream-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(16, 185, 129, 0.35);
 }
 
 /* Empty Stream State */
@@ -639,18 +710,18 @@ kbd {
   background: var(--bg-surface);
   border: 1px dashed var(--border-subtle);
   border-radius: var(--radius-lg);
-  padding: 1.75rem 1.25rem;
+  padding: 1.5rem 1.25rem;
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.65rem;
+  gap: 0.5rem;
 }
 
 .empty-icon {
-  width: 44px;
-  height: 44px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.03);
   display: flex;
@@ -660,37 +731,37 @@ kbd {
 }
 
 .empty-title {
-  font-size: 0.92rem;
+  font-size: 0.88rem;
   font-weight: 600;
   color: var(--text-secondary);
 }
 
 .empty-subtitle {
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   color: var(--text-muted);
-  max-width: 380px;
+  max-width: 360px;
   line-height: 1.4;
 }
 
-/* Text Stream Card */
+/* Compact Text Stream Card */
 .stream-card {
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg);
-  padding: 1rem 1.15rem;
-  box-shadow: var(--shadow-card);
-  backdrop-filter: blur(20px);
+  border-radius: var(--radius-md);
+  padding: 0.55rem 0.85rem;
+  box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(16px);
   display: flex;
   flex-direction: column;
-  gap: 0.65rem;
+  gap: 0.3rem;
   position: relative;
   overflow: hidden;
-  animation: slide-up 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  transition: transform 0.2s ease, border-color 0.2s ease;
+  animation: slide-up 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.15s ease, border-color 0.15s ease;
 }
 
 .stream-card:hover {
-  border-color: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.18);
 }
 
 .stream-card.is-self {
@@ -702,7 +773,7 @@ kbd {
 }
 
 @keyframes slide-up {
-  from { opacity: 0; transform: translateY(8px); }
+  from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
@@ -711,13 +782,28 @@ kbd {
   justify-content: space-between;
   align-items: center;
   gap: 0.5rem;
+  line-height: 1;
+}
+
+.card-topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.card-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-shrink: 0;
 }
 
 .device-indicator {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  font-size: 0.78rem;
+  gap: 0.35rem;
+  font-size: 0.75rem;
   font-weight: 600;
   color: var(--text-secondary);
 }
@@ -730,16 +816,15 @@ kbd {
   color: var(--accent-emerald);
 }
 
-.card-meta {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+.timestamp {
+  font-size: 0.7rem;
+  color: var(--text-muted);
 }
 
 .type-pill {
-  font-size: 0.65rem;
+  font-size: 0.62rem;
   font-weight: 700;
-  padding: 0.12rem 0.45rem;
+  padding: 0.1rem 0.4rem;
   border-radius: var(--radius-full);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -763,77 +848,65 @@ kbd {
   border: 1px solid rgba(168, 85, 247, 0.3);
 }
 
-.type-pill.text {
-  background: rgba(255, 255, 255, 0.06);
-  color: var(--text-muted);
-}
-
-.timestamp {
-  font-size: 0.72rem;
-  color: var(--text-muted);
-}
-
 /* Card Body Content */
 .card-content {
   color: var(--text-primary);
-  font-size: 0.92rem;
-  line-height: 1.5;
+  font-size: 0.88rem;
+  line-height: 1.45;
   word-break: break-word;
   overflow-wrap: anywhere;
+}
+
+.card-content .text-body {
   white-space: pre-wrap;
+  font-weight: 500;
 }
 
 /* Special OTP presentation */
 .otp-display {
   font-family: var(--font-mono);
-  font-size: 1.85rem;
+  font-size: 1.5rem;
   font-weight: 700;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.14em;
   color: #FFFFFF;
-  text-shadow: 0 0 16px rgba(16, 185, 129, 0.45);
-  padding: 0.6rem 1rem;
-  background: rgba(0, 0, 0, 0.45);
+  text-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+  padding: 0.4rem 0.75rem;
+  background: rgba(0, 0, 0, 0.4);
   border-radius: var(--radius-md);
   border: 1px solid rgba(16, 185, 129, 0.3);
   text-align: center;
-  margin: 0.2rem 0;
+  margin: 0.1rem 0;
   user-select: all;
 }
 
 /* Code presentation */
 .code-display {
   font-family: var(--font-mono);
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   background: rgba(0, 0, 0, 0.5);
-  padding: 0.75rem 0.85rem;
+  padding: 0.6rem 0.75rem;
   border-radius: var(--radius-md);
   border: 1px solid rgba(255, 255, 255, 0.06);
   overflow-x: auto;
 }
 
-/* 1-Click Copy Bar */
-.card-actionbar {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.5rem;
-  margin-top: 0.15rem;
-}
-
+/* Inline Compact Copy Button */
 .copy-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.45rem;
+  gap: 0.35rem;
   font-family: var(--font-sans);
   font-weight: 700;
-  font-size: 0.82rem;
-  padding: 0.45rem 1rem;
-  border-radius: var(--radius-md);
+  font-size: 0.72rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: all 0.18s ease;
+  transition: all 0.15s ease;
   background: rgba(16, 185, 129, 0.12);
   color: var(--accent-emerald);
-  border: 1px solid rgba(16, 185, 129, 0.3);
+  border: 1px solid rgba(16, 185, 129, 0.28);
+  white-space: nowrap;
 }
 
 .copy-btn:hover {
@@ -845,22 +918,23 @@ kbd {
   background: var(--accent-emerald);
   color: #042217;
   border-color: var(--accent-emerald);
-  box-shadow: 0 0 16px rgba(16, 185, 129, 0.45);
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
 }
 
 .open-link-btn {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  font-size: 0.78rem;
+  gap: 0.3rem;
+  font-size: 0.72rem;
   font-weight: 600;
   color: var(--accent-cyan);
-  padding: 0.45rem 0.8rem;
-  border-radius: var(--radius-md);
+  padding: 0.25rem 0.55rem;
+  border-radius: var(--radius-sm);
   text-decoration: none;
   background: rgba(6, 182, 212, 0.1);
   border: 1px solid rgba(6, 182, 212, 0.25);
-  transition: all 0.18s ease;
+  transition: all 0.15s ease;
+  white-space: nowrap;
 }
 
 /* Mobile Responsive Optimization (< 840px) */

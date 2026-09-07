@@ -4,6 +4,20 @@ Nhật ký theo dõi các thay đổi kiến trúc và quyết định thiết k
 
 ---
 
+### [2026-09-07] - Tối Ưu Hóa Giao Diện Hộp Cuộn Stream & Tinh Gọn Thẻ Tin Nhắn (Ultra-Compact Cards)
+- **Chủ đề**: Scrollable Stream Container & Ultra-Compact Text Cards for Mobile/Desktop
+- **Nội dung thống nhất**:
+  1. **Hộp Cuộn Nội Bộ (Internal Scroll Box)**:
+     - Biến khu vực Received Stream thành một box cuộn độc lập (`overflow-y: auto`, desktop max-height `420px`, mobile `270px`).
+     - Thanh cuộn thiết kế siêu mỏng (5px), bán trong suốt, bo tròn chuẩn dark modern UI.
+     - Thêm nút "Clear list" tiện ích để người dùng có thể xóa nhanh lịch sử trên màn hình khi cần.
+  2. **Thẻ Tin Nhắn Siêu Tinh Gọn (Ultra-Compact)**:
+     - Di chuyển nút `COPY` và nút `Open link` lên cùng dòng Topbar (ngang hàng với tên thiết bị và timestamp).
+     - Loại bỏ hoàn toàn hàng `card-actionbar` thừa thãi bên dưới, giảm hơn 60% chiều cao của mỗi thẻ đối với văn bản ngắn/số lẻ (như "4", "5", "6", "7").
+     - Tối ưu padding và font size giúp hiển thị được nhiều nội dung hơn mà không đẩy Session Bridge / QR code ra khỏi khung nhìn.
+
+---
+
 ### [2026-09-07] - Đồng bộ Lịch sử Từ RAM (Peer-to-Peer Backfill) Cho Thiết Bị Mới Vào
 - **Chủ đề**: In-Memory History Synchronization Without Disk Persistence
 - **Nội dung thống nhất**:
