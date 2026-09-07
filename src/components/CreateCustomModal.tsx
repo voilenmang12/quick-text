@@ -38,8 +38,8 @@ export const CreateCustomModal: React.FC<CreateCustomModalProps> = ({
       setError('Please enter a session code.');
       return;
     }
-    if (cleanCode.length < 3) {
-      setError('Session code must be at least 3 characters.');
+    if (cleanCode.length < 2) {
+      setError('Session code must be at least 2 characters.');
       return;
     }
 

@@ -22,11 +22,11 @@ export const App: React.FC = () => {
     if (typeof window !== 'undefined') {
       const searchParams = new URLSearchParams(window.location.search);
       const sParam = searchParams.get('s');
-      if (sParam && sParam.trim().length >= 3) {
+      if (sParam && sParam.trim().length >= 2) {
         return sParam.trim().toUpperCase();
       }
       const hash = window.location.hash.replace('#', '');
-      if (hash && hash.length >= 3) {
+      if (hash && hash.length >= 2) {
         return hash.toUpperCase();
       }
     }

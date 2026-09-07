@@ -35,8 +35,8 @@ export const ConnectModal: React.FC<ConnectModalProps> = ({
       setError('Please enter a session code.');
       return;
     }
-    if (cleanCode.length < 4) {
-      setError('Code must be at least 4 characters.');
+    if (cleanCode.length < 2) {
+      setError('Code must be at least 2 characters.');
       return;
     }
 
@@ -80,7 +80,7 @@ export const ConnectModal: React.FC<ConnectModalProps> = ({
               id="connect-session-input"
               placeholder="e.g. Q3N4S5"
               value={code}
-              maxLength={8}
+              maxLength={12}
               onChange={(e) => {
                 setCode(e.target.value.toUpperCase());
                 if (error) setError('');
