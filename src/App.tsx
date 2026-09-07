@@ -43,6 +43,9 @@ export const App: React.FC = () => {
 
   // Trạng thái phiên (Zero Persistence - RAM Only)
   const [messages, setMessages] = useState<StreamMessage[]>([]);
+  const messagesRef = useRef<StreamMessage[]>([]);
+  messagesRef.current = messages;
+
   const [deviceCount, setDeviceCount] = useState<number>(1);
   const [devices, setDevices] = useState<DeviceInfo[]>([]);
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('connecting');
@@ -94,6 +97,20 @@ export const App: React.FC = () => {
         },
         onStatusChange: (status) => {
           setConnectionStatus(status);
+        },
+        getCurrentMessages: () => messagesRef.current,
+        onSyncHistory: (incomingMessages) => {
+          setMessages((prev) => {
+            const existingIds = new Set(prev.map((m) => m.id));
+            const newItems = incomingMessages
+              .filter((m) => !existingIds.has(m.id))
+              .map((m) => ({
+                ...m,
+                isSelf: m.senderId === deviceId,
+              }));
+            if (newItems.length === 0) return prev;
+            return [...newItems, ...prev].sort((a, b) => b.timestamp - a.timestamp);
+          });
         },
       },
       passHash

@@ -7,6 +7,8 @@ interface RealtimeCallbacks {
   onPresenceUpdate: (count: number, devices: DeviceInfo[]) => void;
   onStatusChange: (status: 'connecting' | 'connected' | 'reconnecting' | 'disconnected') => void;
   onRoomPasswordDetected?: (passHash: string) => void;
+  getCurrentMessages: () => StreamMessage[];
+  onSyncHistory: (messages: StreamMessage[]) => void;
 }
 
 export class RealtimeSession {
@@ -66,6 +68,11 @@ export class RealtimeSession {
         };
         // Gửi thông báo sự hiện diện cục bộ
         this.sendLocalPresence('join');
+        // Yêu cầu đồng bộ lịch sử từ tab khác đang mở
+        this.broadcastChannel.postMessage({
+          type: 'sync-req',
+          requesterId: this.deviceId,
+        });
       } catch (err) {
         console.warn('BroadcastChannel error:', err);
       }
@@ -110,7 +117,31 @@ export class RealtimeSession {
           }
         });
 
-        // 2. Lắng nghe Presence (số thiết bị trực tuyến và trạng thái mật khẩu phòng)
+        // 2. Lắng nghe yêu cầu đồng bộ lịch sử từ máy mới vào
+        this.channel.on('broadcast', { event: 'sync-req' }, ({ payload }) => {
+          if (payload && payload.requesterId && payload.requesterId !== this.deviceId) {
+            const currentList = this.callbacks.getCurrentMessages();
+            if (currentList.length > 0) {
+              this.channel?.send({
+                type: 'broadcast',
+                event: 'sync-res',
+                payload: {
+                  targetId: payload.requesterId,
+                  messages: currentList,
+                },
+              });
+            }
+          }
+        });
+
+        // 3. Nhận lịch sử đồng bộ từ máy đang online
+        this.channel.on('broadcast', { event: 'sync-res' }, ({ payload }) => {
+          if (payload && payload.targetId === this.deviceId && Array.isArray(payload.messages)) {
+            this.callbacks.onSyncHistory(payload.messages);
+          }
+        });
+
+        // 4. Lắng nghe Presence (số thiết bị trực tuyến và trạng thái mật khẩu phòng)
         this.channel.on('presence', { event: 'sync' }, () => {
           if (!this.channel) return;
           const presenceState = this.channel.presenceState();
@@ -150,6 +181,13 @@ export class RealtimeSession {
               joinedAt: Date.now(),
               hasPassword: !!this.passwordHash,
               passwordHash: this.passwordHash,
+            });
+
+            // Gửi yêu cầu xin lịch sử tin nhắn từ các máy đang mở tab
+            this.channel?.send({
+              type: 'broadcast',
+              event: 'sync-req',
+              payload: { requesterId: this.deviceId },
             });
           } else if (status === 'CHANNEL_ERROR') {
             this.callbacks.onStatusChange('disconnected');
@@ -213,6 +251,23 @@ export class RealtimeSession {
         hasPassword: !!this.passwordHash,
         passwordHash: this.passwordHash,
       });
+      return;
+    }
+
+    if (data.type === 'sync-req' && data.requesterId !== this.deviceId) {
+      const currentList = this.callbacks.getCurrentMessages();
+      if (currentList.length > 0) {
+        this.broadcastChannel?.postMessage({
+          type: 'sync-res',
+          targetId: data.requesterId,
+          messages: currentList,
+        });
+      }
+      return;
+    }
+
+    if (data.type === 'sync-res' && data.targetId === this.deviceId && Array.isArray(data.messages)) {
+      this.callbacks.onSyncHistory(data.messages);
       return;
     }
 
