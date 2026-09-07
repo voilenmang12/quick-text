@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Header } from './components/Header';
 import { SessionBridge } from './components/SessionBridge';
-import { QuickSender } from './components/QuickSender';
-import { TextStreamList } from './components/TextStreamList';
+import { ChatWorkspace } from './components/ChatWorkspace';
 import { ConnectModal } from './components/ConnectModal';
 import { CreateCustomModal } from './components/CreateCustomModal';
 import { PasswordPromptModal } from './components/PasswordPromptModal';
@@ -89,7 +88,7 @@ export const App: React.FC = () => {
       deviceType,
       {
         onMessage: (msg) => {
-          setMessages((prev) => [msg, ...prev]);
+          setMessages((prev) => [...prev, msg]);
         },
         onPresenceUpdate: (count, activeDevices) => {
           setDeviceCount(count);
@@ -109,7 +108,7 @@ export const App: React.FC = () => {
                 isSelf: m.senderId === deviceId,
               }));
             if (newItems.length === 0) return prev;
-            return [...newItems, ...prev].sort((a, b) => b.timestamp - a.timestamp);
+            return [...prev, ...newItems].sort((a, b) => a.timestamp - b.timestamp);
           });
         },
       },
@@ -166,7 +165,7 @@ export const App: React.FC = () => {
       contentType: detectContentType(rawText),
     };
 
-    setMessages((prev) => [messageItem, ...prev]);
+    setMessages((prev) => [...prev, messageItem]);
 
     if (realtimeRef.current) {
       await realtimeRef.current.sendMessage(messageItem);
@@ -244,16 +243,15 @@ export const App: React.FC = () => {
           />
         </aside>
 
-        {/* Cột phải: Khung gửi nhanh & Danh sách nhận văn bản */}
+        {/* Cột phải: Khung Chat hợp nhất (Tin nhắn ở trên, Input ở dưới, tin mới nhất ở dưới cùng) */}
         <section className="content-area" id="quicktext-content">
-          <QuickSender
-            onSend={handleSendMessage}
-            disabled={connectionStatus === 'disconnected'}
-          />
-
-          <TextStreamList
+          <ChatWorkspace
             messages={messages}
+            onSendMessage={handleSendMessage}
             onClearStream={() => setMessages([])}
+            disabled={connectionStatus === 'disconnected'}
+            connectionStatus={connectionStatus}
+            deviceCount={deviceCount}
           />
         </section>
       </main>

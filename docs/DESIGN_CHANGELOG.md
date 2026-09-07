@@ -4,17 +4,24 @@ Nhật ký theo dõi các thay đổi kiến trúc và quyết định thiết k
 
 ---
 
-### [2026-09-07] - Tối Ưu Hóa Giao Diện Hộp Cuộn Stream & Tinh Gọn Thẻ Tin Nhắn (Ultra-Compact Cards)
-- **Chủ đề**: Scrollable Stream Container & Ultra-Compact Text Cards for Mobile/Desktop
+### [2026-09-07] - Chuyển Đổi Không Gian Tin Nhắn Sang Mô Hình Ứng Dụng Chat Hiện Đại (Chat Workspace)
+- **Chủ đề**: Unified Chat & Text Stream Architecture (Input at Bottom, Chronological Messages, Visible Scrollbar)
 - **Nội dung thống nhất**:
-  1. **Hộp Cuộn Nội Bộ (Internal Scroll Box)**:
-     - Biến khu vực Received Stream thành một box cuộn độc lập (`overflow-y: auto`, desktop max-height `420px`, mobile `270px`).
-     - Thanh cuộn thiết kế siêu mỏng (5px), bán trong suốt, bo tròn chuẩn dark modern UI.
-     - Thêm nút "Clear list" tiện ích để người dùng có thể xóa nhanh lịch sử trên màn hình khi cần.
-  2. **Thẻ Tin Nhắn Siêu Tinh Gọn (Ultra-Compact)**:
-     - Di chuyển nút `COPY` và nút `Open link` lên cùng dòng Topbar (ngang hàng với tên thiết bị và timestamp).
-     - Loại bỏ hoàn toàn hàng `card-actionbar` thừa thãi bên dưới, giảm hơn 60% chiều cao của mỗi thẻ đối với văn bản ngắn/số lẻ (như "4", "5", "6", "7").
-     - Tối ưu padding và font size giúp hiển thị được nhiều nội dung hơn mà không đẩy Session Bridge / QR code ra khỏi khung nhìn.
+  1. **Hợp Nhất Khung Nhập & Khung Tin Nhắn (Unified Chat Container)**:
+     - Gộp ô nhập văn bản và danh sách tin nhắn thành một khối `ChatWorkspace` duy nhất tương tự Telegram/Discord.
+     - Header hiển thị trạng thái kết nối real-time, số máy đang trực tuyến, số lượng tin và nút xóa nhanh màn hình.
+  2. **Thứ Tự Tin Nhắn Chuẩn Chat (Chronological Order & Auto-scroll)**:
+     - Tin nhắn cũ ở trên, tin nhắn mới nhất luôn ở dưới cùng.
+     - Tự động cuộn mượt xuống đáy (`auto-scroll to bottom`) khi có tin nhắn mới gửi hoặc nhận.
+     - Tích hợp nút nổi `↓ Latest` tiện lợi khi người dùng cuộn ngược lên xem lại lịch sử cũ.
+  3. **Thanh Cuộn Rõ Ràng (Visible Functional Scrollbar)**:
+     - Thanh cuộn thiết kế viền xanh Emerald tinh tế, luôn hiển thị khi danh sách tràn, cho phép người dùng kéo cuộn mượt mà trên cả PC và Mobile.
+  4. **Giữ Nguyên Kích Thước Khung Chữ (Full Text Readability)**:
+     - Giữ nguyên kích thước và khoảng đệm thoải mái của các thẻ tin nhắn, chữ hiển thị rõ ràng, chống co ép/mất nội dung.
+     - Phân biệt rõ tin gửi từ máy hiện tại (viền Cyan) và máy đối tác (viền Emerald).
+  5. **Ô Nhập Pinned Ở Dưới Cùng (Bottom Input Bar)**:
+     - Ghim cố định ở chân container.
+     - Hỗ trợ nhấn `Enter` để gửi ngay, `Shift + Enter` để xuống dòng, tích hợp nút dán Clipboard 1 chạm.
 
 ---
 
