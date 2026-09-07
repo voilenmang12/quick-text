@@ -23,20 +23,20 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <header className="navbar" id="quicktext-navbar">
-      <div className="brand-section">
-        <div className="brand-icon" id="quicktext-brand-icon">
-          <Zap size={22} />
+      <div className="navbar-main-row">
+        <div className="brand-section">
+          <div className="brand-icon" id="quicktext-brand-icon">
+            <Zap size={22} />
+          </div>
+          <div className="brand-text-group">
+            <h1 className="brand-title">
+              QuickText
+              <span className="brand-badge">CLIPBOARD</span>
+            </h1>
+            <p className="brand-tagline">Instant cross-device text & OTP sync</p>
+          </div>
         </div>
-        <div className="brand-text-group">
-          <h1 className="brand-title">
-            QuickText
-            <span className="brand-badge">CLIPBOARD</span>
-          </h1>
-          <p className="brand-tagline">Instant cross-device text & OTP sync</p>
-        </div>
-      </div>
 
-      <div className="nav-actions">
         {/* Device presence pill */}
         <div 
           className="device-pill" 
@@ -54,8 +54,10 @@ export const Header: React.FC<HeaderProps> = ({
             </span>
           )}
         </div>
+      </div>
 
-        {/* Quick random session button */}
+      {/* Action buttons group: automatically moves to second line on mobile */}
+      <div className="nav-buttons-group" id="nav-actions-group">
         <button
           className="btn btn-secondary btn-compact"
           id="btn-new-session"
@@ -66,7 +68,6 @@ export const Header: React.FC<HeaderProps> = ({
           <span className="btn-label">Random</span>
         </button>
 
-        {/* Custom session code creation button */}
         <button
           className="btn btn-secondary btn-compact"
           id="btn-custom-session"
@@ -77,7 +78,6 @@ export const Header: React.FC<HeaderProps> = ({
           <span className="btn-label">Custom</span>
         </button>
 
-        {/* Connect to existing session button */}
         <button
           className="btn btn-connect btn-compact"
           id="btn-open-connect"
