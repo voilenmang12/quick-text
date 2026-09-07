@@ -18,6 +18,15 @@ export interface DeviceInfo {
   deviceName: string;
   deviceType: DeviceType;
   joinedAt: number;
+  hasPassword?: boolean;
+  passwordHash?: string;
+}
+
+export interface SessionProbeResult {
+  inUse: boolean;
+  hasPassword: boolean;
+  passwordHash?: string;
+  memberCount: number;
 }
 
 export type ConnectionStatus = 'connecting' | 'connected' | 'reconnecting' | 'disconnected';

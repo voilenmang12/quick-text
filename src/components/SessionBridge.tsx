@@ -1,16 +1,20 @@
 import React, { useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
-import { Copy, Check, QrCode, ShieldCheck, Link2 } from 'lucide-react';
+import { Copy, Check, QrCode, ShieldCheck, Link2, Lock, Unlock, X } from 'lucide-react';
 import { copyToClipboard } from '../utils/helpers';
 
 interface SessionBridgeProps {
   sessionId: string;
   sessionUrl: string;
+  password: string;
+  onPasswordChange: (newPassword: string) => void;
 }
 
 export const SessionBridge: React.FC<SessionBridgeProps> = ({
   sessionId,
   sessionUrl,
+  password,
+  onPasswordChange,
 }) => {
   const [copiedId, setCopiedId] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
@@ -91,6 +95,37 @@ export const SessionBridge: React.FC<SessionBridgeProps> = ({
         </button>
       </div>
 
+      {/* Room Password Input Box */}
+      <div className={`password-box ${password ? 'is-locked' : ''}`} id="session-password-box">
+        <div className="password-box-icon">
+          {password ? (
+            <Lock size={15} color="#10B981" />
+          ) : (
+            <Unlock size={15} color="#64748B" />
+          )}
+        </div>
+        <input
+          type="text"
+          className="password-input"
+          id="session-password-input"
+          placeholder="Room password (empty = public)..."
+          value={password}
+          maxLength={20}
+          onChange={(e) => onPasswordChange(e.target.value)}
+        />
+        {password && (
+          <button
+            type="button"
+            className="password-clear-btn"
+            id="btn-clear-password"
+            onClick={() => onPasswordChange('')}
+            title="Remove room password"
+          >
+            <X size={13} />
+          </button>
+        )}
+      </div>
+
       {/* Steps instructions */}
       <div className="steps-list">
         <div className="step-item">
@@ -99,7 +134,13 @@ export const SessionBridge: React.FC<SessionBridgeProps> = ({
         </div>
         <div className="step-item">
           <span className="step-number">2</span>
-          <span>Paste text, OTP or code anywhere to sync instantly.</span>
+          <span>
+            {password ? (
+              <span style={{ color: '#10B981' }}>Password protected: New devices must enter passcode to join.</span>
+            ) : (
+              <span>Paste text, OTP or code anywhere to sync instantly.</span>
+            )}
+          </span>
         </div>
       </div>
 

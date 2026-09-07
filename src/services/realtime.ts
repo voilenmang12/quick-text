@@ -1,11 +1,12 @@
 import { createClient } from '@supabase/supabase-js';
 import type { RealtimeChannel, SupabaseClient } from '@supabase/supabase-js';
-import type { DeviceInfo, DeviceType, StreamMessage } from '../types';
+import type { DeviceInfo, DeviceType, SessionProbeResult, StreamMessage } from '../types';
 
 interface RealtimeCallbacks {
   onMessage: (msg: StreamMessage) => void;
   onPresenceUpdate: (count: number, devices: DeviceInfo[]) => void;
   onStatusChange: (status: 'connecting' | 'connected' | 'reconnecting' | 'disconnected') => void;
+  onRoomPasswordDetected?: (passHash: string) => void;
 }
 
 export class RealtimeSession {
@@ -13,6 +14,7 @@ export class RealtimeSession {
   private deviceId: string;
   private deviceName: string;
   private deviceType: DeviceType;
+  private passwordHash: string;
   private callbacks: RealtimeCallbacks;
   
   private supabase: SupabaseClient | null = null;
@@ -26,13 +28,30 @@ export class RealtimeSession {
     deviceId: string,
     deviceName: string,
     deviceType: DeviceType,
-    callbacks: RealtimeCallbacks
+    callbacks: RealtimeCallbacks,
+    passwordHash = ''
   ) {
     this.sessionId = sessionId;
     this.deviceId = deviceId;
     this.deviceName = deviceName;
     this.deviceType = deviceType;
+    this.passwordHash = passwordHash;
     this.callbacks = callbacks;
+  }
+
+  public updatePasswordHash(newHash: string): void {
+    this.passwordHash = newHash;
+    if (this.channel) {
+      this.channel.track({
+        deviceId: this.deviceId,
+        deviceName: this.deviceName,
+        deviceType: this.deviceType,
+        joinedAt: Date.now(),
+        hasPassword: !!newHash,
+        passwordHash: newHash,
+      });
+    }
+    this.sendLocalPresence('join');
   }
 
   public connect(): void {
@@ -91,7 +110,7 @@ export class RealtimeSession {
           }
         });
 
-        // 2. Lắng nghe Presence (số thiết bị trực tuyến)
+        // 2. Lắng nghe Presence (số thiết bị trực tuyến và trạng thái mật khẩu phòng)
         this.channel.on('presence', { event: 'sync' }, () => {
           if (!this.channel) return;
           const presenceState = this.channel.presenceState();
@@ -102,10 +121,17 @@ export class RealtimeSession {
               if (p.deviceId) {
                 activeDevices.push({
                   deviceId: p.deviceId,
-                  deviceName: p.deviceName || 'Thiết bị',
+                  deviceName: p.deviceName || 'Device',
                   deviceType: p.deviceType || 'unknown',
                   joinedAt: p.joinedAt || Date.now(),
+                  hasPassword: !!p.hasPassword,
+                  passwordHash: p.passwordHash || '',
                 });
+
+                // Nếu có peer khác đặt mật khẩu, thông báo cho callback
+                if (p.hasPassword && p.passwordHash && this.callbacks.onRoomPasswordDetected) {
+                  this.callbacks.onRoomPasswordDetected(p.passwordHash);
+                }
               }
             });
           });
@@ -122,6 +148,8 @@ export class RealtimeSession {
               deviceName: this.deviceName,
               deviceType: this.deviceType,
               joinedAt: Date.now(),
+              hasPassword: !!this.passwordHash,
+              passwordHash: this.passwordHash,
             });
           } else if (status === 'CHANNEL_ERROR') {
             this.callbacks.onStatusChange('disconnected');
@@ -148,6 +176,8 @@ export class RealtimeSession {
       deviceName: this.deviceName,
       deviceType: this.deviceType,
       joinedAt: Date.now(),
+      hasPassword: !!this.passwordHash,
+      passwordHash: this.passwordHash,
     });
     this.callbacks.onPresenceUpdate(1, Array.from(this.localPeers.values()));
 
@@ -167,12 +197,24 @@ export class RealtimeSession {
         deviceName: this.deviceName,
         deviceType: this.deviceType,
         joinedAt: Date.now(),
+        hasPassword: !!this.passwordHash,
+        passwordHash: this.passwordHash,
       },
     });
   }
 
   private handleBroadcastChannelMessage(data: any): void {
     if (!data || !data.type) return;
+
+    if (data.type === 'probe-req') {
+      this.broadcastChannel?.postMessage({
+        type: 'probe-ack',
+        probeId: data.probeId,
+        hasPassword: !!this.passwordHash,
+        passwordHash: this.passwordHash,
+      });
+      return;
+    }
 
     if (data.type === 'text-stream') {
       const msg = data.payload as StreamMessage;
@@ -202,6 +244,8 @@ export class RealtimeSession {
         deviceName: this.deviceName,
         deviceType: this.deviceType,
         joinedAt: Date.now(),
+        hasPassword: !!this.passwordHash,
+        passwordHash: this.passwordHash,
       });
 
       this.callbacks.onPresenceUpdate(this.localPeers.size, Array.from(this.localPeers.values()));
@@ -257,4 +301,111 @@ export class RealtimeSession {
     this.localPeers.clear();
     this.callbacks.onStatusChange('disconnected');
   }
+}
+
+/**
+ * Kiểm tra xem một mã phòng đã có thiết bị đang online hay chưa và có mật khẩu không
+ */
+export async function probeSession(targetSessionId: string): Promise<SessionProbeResult> {
+  const cleanId = targetSessionId.trim().toUpperCase();
+
+  const supabaseUrl =
+    import.meta.env.VITE_SUPABASE_URL ||
+    import.meta.env.NEXT_PUBLIC_SUPABASE_URL ||
+    import.meta.env.SUPABASE_URL;
+
+  const supabaseAnonKey =
+    import.meta.env.VITE_SUPABASE_ANON_KEY ||
+    import.meta.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+    import.meta.env.SUPABASE_ANON_KEY;
+
+  if (supabaseUrl && supabaseAnonKey) {
+    try {
+      const client = createClient(supabaseUrl, supabaseAnonKey);
+      const probeChannel = client.channel(`quicktext_session_${cleanId}`);
+
+      const result = await new Promise<SessionProbeResult>((resolve) => {
+        let isDone = false;
+
+        const timer = setTimeout(() => {
+          if (!isDone) {
+            isDone = true;
+            probeChannel.unsubscribe();
+            client.removeChannel(probeChannel);
+            resolve({ inUse: false, hasPassword: false, memberCount: 0 });
+          }
+        }, 1400);
+
+        probeChannel.on('presence', { event: 'sync' }, () => {
+          if (isDone) return;
+          const state = probeChannel.presenceState();
+          const members: any[] = [];
+          Object.values(state).forEach((list: any) => {
+            members.push(...list);
+          });
+
+          if (members.length > 0) {
+            isDone = true;
+            clearTimeout(timer);
+            const protectedMember = members.find((m) => m.hasPassword);
+            probeChannel.unsubscribe();
+            client.removeChannel(probeChannel);
+            resolve({
+              inUse: true,
+              hasPassword: !!protectedMember,
+              passwordHash: protectedMember?.passwordHash || '',
+              memberCount: members.length,
+            });
+          }
+        });
+
+        probeChannel.subscribe();
+      });
+
+      return result;
+    } catch {
+      // Fallback
+    }
+  }
+
+  // Native BroadcastChannel probe for local peer testing
+  if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+    return new Promise((resolve) => {
+      try {
+        const bc = new BroadcastChannel(`quicktext_${cleanId}`);
+        const probeId = 'probe_' + Math.random().toString(36).substring(2, 7);
+        let resolved = false;
+
+        const timer = setTimeout(() => {
+          if (!resolved) {
+            resolved = true;
+            bc.close();
+            resolve({ inUse: false, hasPassword: false, memberCount: 0 });
+          }
+        }, 350);
+
+        bc.onmessage = (event) => {
+          if (event.data?.type === 'probe-ack' && event.data?.probeId === probeId) {
+            if (!resolved) {
+              resolved = true;
+              clearTimeout(timer);
+              bc.close();
+              resolve({
+                inUse: true,
+                hasPassword: !!event.data.hasPassword,
+                passwordHash: event.data.passwordHash || '',
+                memberCount: 1,
+              });
+            }
+          }
+        };
+
+        bc.postMessage({ type: 'probe-req', probeId });
+      } catch {
+        resolve({ inUse: false, hasPassword: false, memberCount: 0 });
+      }
+    });
+  }
+
+  return { inUse: false, hasPassword: false, memberCount: 0 };
 }

@@ -371,6 +371,62 @@ html, body {
   flex-shrink: 0;
 }
 
+/* Room Password Box */
+.password-box {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 0.4rem 0.65rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.password-box.is-locked {
+  border-color: rgba(16, 185, 129, 0.35);
+  background: rgba(16, 185, 129, 0.04);
+}
+
+.password-box-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.password-input {
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  width: 100%;
+  outline: none;
+}
+
+.password-input::placeholder {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+.password-clear-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  border-radius: 4px;
+}
+
+.password-clear-btn:hover {
+  color: var(--accent-danger);
+  background: rgba(239, 68, 68, 0.1);
+}
+
 /* Steps List */
 .steps-list {
   display: flex;
@@ -1052,10 +1108,79 @@ kbd {
   text-align: center;
 }
 
+.modal-error-box {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 0.85rem;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  border-radius: var(--radius-md);
+  font-size: 0.78rem;
+  color: #F87171;
+}
+
+.custom-create-icon {
+  background: rgba(16, 185, 129, 0.15) !important;
+  color: var(--accent-emerald) !important;
+}
+
+.password-icon {
+  background: rgba(245, 158, 11, 0.15) !important;
+  color: var(--accent-amber) !important;
+}
+
+.highlight-code {
+  font-family: var(--font-mono);
+  color: var(--accent-cyan);
+}
+
+.password-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.input-lock-icon {
+  position: absolute;
+  left: 1rem;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.modal-password-input {
+  width: 100%;
+  background: var(--bg-input);
+  border: 2px solid rgba(245, 158, 11, 0.3);
+  border-radius: var(--radius-md);
+  padding: 0.85rem 1rem 0.85rem 2.6rem;
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  color: #FFFFFF;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.modal-password-input:focus {
+  border-color: var(--accent-amber);
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.25);
+}
+
+.spin-icon {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 .modal-footer {
   display: flex;
   justify-content: flex-end;
   gap: 0.65rem;
   margin-top: 0.25rem;
 }
+
 

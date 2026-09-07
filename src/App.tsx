@@ -4,13 +4,16 @@ import { SessionBridge } from './components/SessionBridge';
 import { QuickSender } from './components/QuickSender';
 import { TextStreamList } from './components/TextStreamList';
 import { ConnectModal } from './components/ConnectModal';
-import { RealtimeSession } from './services/realtime';
+import { CreateCustomModal } from './components/CreateCustomModal';
+import { PasswordPromptModal } from './components/PasswordPromptModal';
+import { RealtimeSession, probeSession } from './services/realtime';
 import type { ConnectionStatus, DeviceInfo, StreamMessage } from './types';
 import {
   generateSessionId,
   detectDeviceType,
   getFriendlyDeviceName,
   detectContentType,
+  hashPassword,
 } from './utils/helpers';
 
 export const App: React.FC = () => {
@@ -19,18 +22,21 @@ export const App: React.FC = () => {
     if (typeof window !== 'undefined') {
       const searchParams = new URLSearchParams(window.location.search);
       const sParam = searchParams.get('s');
-      if (sParam && sParam.trim().length >= 4) {
+      if (sParam && sParam.trim().length >= 3) {
         return sParam.trim().toUpperCase();
       }
       const hash = window.location.hash.replace('#', '');
-      if (hash && hash.length >= 4) {
+      if (hash && hash.length >= 3) {
         return hash.toUpperCase();
       }
     }
     return generateSessionId();
   });
 
-  // Tạo định danh thiết bị duy nhất trong bộ nhớ RAM cho phiên này
+  // Mật khẩu phòng (mặc định ban đầu trống)
+  const [roomPassword, setRoomPassword] = useState<string>('');
+
+  // Định danh thiết bị trong RAM
   const [deviceId] = useState<string>(() => 'dev_' + Math.random().toString(36).substring(2, 9));
   const deviceType = useRef(detectDeviceType()).current;
   const deviceName = useRef(getFriendlyDeviceName(deviceType)).current;
@@ -40,7 +46,14 @@ export const App: React.FC = () => {
   const [deviceCount, setDeviceCount] = useState<number>(1);
   const [devices, setDevices] = useState<DeviceInfo[]>([]);
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('connecting');
+
+  // Modals state
   const [isConnectModalOpen, setIsConnectModalOpen] = useState<boolean>(false);
+  const [isCreateCustomOpen, setIsCreateCustomOpen] = useState<boolean>(false);
+  const [pendingProtectedSession, setPendingProtectedSession] = useState<{
+    targetSessionId: string;
+    expectedHash: string;
+  } | null>(null);
 
   const realtimeRef = useRef<RealtimeSession | null>(null);
 
@@ -59,10 +72,12 @@ export const App: React.FC = () => {
   }, [sessionId]);
 
   // Khởi tạo kết nối Realtime
-  const connectSession = useCallback((targetSessionId: string) => {
+  const connectSession = useCallback(async (targetSessionId: string, currentPassword = '') => {
     if (realtimeRef.current) {
       realtimeRef.current.disconnect();
     }
+
+    const passHash = currentPassword ? await hashPassword(currentPassword) : '';
 
     const session = new RealtimeSession(
       targetSessionId,
@@ -80,7 +95,8 @@ export const App: React.FC = () => {
         onStatusChange: (status) => {
           setConnectionStatus(status);
         },
-      }
+      },
+      passHash
     );
 
     session.connect();
@@ -88,7 +104,7 @@ export const App: React.FC = () => {
   }, [deviceId, deviceName, deviceType]);
 
   useEffect(() => {
-    connectSession(sessionId);
+    connectSession(sessionId, roomPassword);
 
     return () => {
       if (realtimeRef.current) {
@@ -101,7 +117,7 @@ export const App: React.FC = () => {
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
-        connectSession(sessionId);
+        connectSession(sessionId, roomPassword);
       }
     };
 
@@ -109,7 +125,16 @@ export const App: React.FC = () => {
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [sessionId, connectSession]);
+  }, [sessionId, roomPassword, connectSession]);
+
+  // Khi người dùng thay đổi mật khẩu phòng
+  const handlePasswordChange = async (newPassword: string) => {
+    setRoomPassword(newPassword);
+    const hash = newPassword ? await hashPassword(newPassword) : '';
+    if (realtimeRef.current) {
+      realtimeRef.current.updatePasswordHash(hash);
+    }
+  };
 
   // Gửi văn bản từ máy này
   const handleSendMessage = async (rawText: string) => {
@@ -124,26 +149,60 @@ export const App: React.FC = () => {
       contentType: detectContentType(rawText),
     };
 
-    // Cập nhật giao diện của máy mình trước
     setMessages((prev) => [messageItem, ...prev]);
 
-    // Bắn qua socket thời gian thực
     if (realtimeRef.current) {
       await realtimeRef.current.sendMessage(messageItem);
     }
   };
 
-  // Đổi sang phiên mới hoàn toàn
-  const handleNewSession = () => {
+  // Tạo phiên ngẫu nhiên
+  const handleRandomSession = () => {
     const newId = generateSessionId();
     setMessages([]);
+    setRoomPassword('');
     setSessionId(newId);
   };
 
-  // Kết nối vào một phiên có sẵn qua mã code
-  const handleConnectSession = (targetCode: string) => {
+  // Tạo phiên tùy chỉnh (Custom Code)
+  const handleCreateCustomSession = (customCode: string) => {
     setMessages([]);
-    setSessionId(targetCode);
+    setRoomPassword('');
+    setSessionId(customCode);
+  };
+
+  // Yêu cầu kết nối vào phòng có sẵn (Kiểm tra xem phòng có mật khẩu hay không)
+  const handleRequestConnect = async (targetCode: string) => {
+    try {
+      const probeResult = await probeSession(targetCode);
+
+      // Nếu phòng có mật khẩu: KHÔNG chuyển vào ngay, giữ ở phòng hiện tại và mở popup pass
+      if (probeResult.hasPassword && probeResult.passwordHash) {
+        setPendingProtectedSession({
+          targetSessionId: targetCode,
+          expectedHash: probeResult.passwordHash,
+        });
+        return;
+      }
+
+      // Nếu phòng công khai hoặc chưa có ai: chuyển thẳng vào phòng
+      setMessages([]);
+      setRoomPassword('');
+      setSessionId(targetCode);
+    } catch {
+      // Fallback
+      setMessages([]);
+      setRoomPassword('');
+      setSessionId(targetCode);
+    }
+  };
+
+  // Mở khóa phòng có mật khẩu thành công
+  const handleUnlockSuccess = (targetSessionId: string, verifiedPassword: string) => {
+    setMessages([]);
+    setRoomPassword(verifiedPassword);
+    setSessionId(targetSessionId);
+    setPendingProtectedSession(null);
   };
 
   return (
@@ -152,16 +211,19 @@ export const App: React.FC = () => {
         deviceCount={deviceCount}
         devices={devices}
         connectionStatus={connectionStatus}
-        onNewSession={handleNewSession}
+        onNewSession={handleRandomSession}
+        onOpenCustomSession={() => setIsCreateCustomOpen(true)}
         onOpenConnect={() => setIsConnectModalOpen(true)}
       />
 
       <main className="main-layout" id="quicktext-main">
-        {/* Cột trái: Ghép đôi thiết bị bằng QR & Link */}
+        {/* Cột trái: Ghép đôi thiết bị bằng QR, Link & Mật khẩu phòng */}
         <aside className="sidebar-area" id="quicktext-sidebar">
           <SessionBridge
             sessionId={sessionId}
             sessionUrl={sessionUrl}
+            password={roomPassword}
+            onPasswordChange={handlePasswordChange}
           />
         </aside>
 
@@ -178,10 +240,27 @@ export const App: React.FC = () => {
         </section>
       </main>
 
+      {/* Modal kết nối vào phòng */}
       <ConnectModal
         isOpen={isConnectModalOpen}
         onClose={() => setIsConnectModalOpen(false)}
-        onConnect={handleConnectSession}
+        onConnect={handleRequestConnect}
+      />
+
+      {/* Modal tạo phòng với mã tùy chọn */}
+      <CreateCustomModal
+        isOpen={isCreateCustomOpen}
+        onClose={() => setIsCreateCustomOpen(false)}
+        onCreate={handleCreateCustomSession}
+      />
+
+      {/* Modal yêu cầu nhập mật khẩu khi join vào phòng có pass */}
+      <PasswordPromptModal
+        isOpen={!!pendingProtectedSession}
+        targetSessionId={pendingProtectedSession?.targetSessionId || ''}
+        expectedHash={pendingProtectedSession?.expectedHash || ''}
+        onClose={() => setPendingProtectedSession(null)}
+        onSuccess={handleUnlockSuccess}
       />
     </div>
   );

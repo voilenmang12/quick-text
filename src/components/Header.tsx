@@ -1,5 +1,5 @@
 import React from 'react';
-import { Zap, RefreshCw, Radio, Monitor, Smartphone } from 'lucide-react';
+import { Zap, RefreshCw, Radio, PlusCircle, Monitor, Smartphone } from 'lucide-react';
 import type { ConnectionStatus, DeviceInfo } from '../types';
 
 interface HeaderProps {
@@ -7,6 +7,7 @@ interface HeaderProps {
   devices: DeviceInfo[];
   connectionStatus: ConnectionStatus;
   onNewSession: () => void;
+  onOpenCustomSession: () => void;
   onOpenConnect: () => void;
 }
 
@@ -15,6 +16,7 @@ export const Header: React.FC<HeaderProps> = ({
   devices,
   connectionStatus,
   onNewSession,
+  onOpenCustomSession,
   onOpenConnect,
 }) => {
   const isConnected = connectionStatus === 'connected';
@@ -53,15 +55,26 @@ export const Header: React.FC<HeaderProps> = ({
           )}
         </div>
 
-        {/* New session button */}
+        {/* Quick random session button */}
         <button
           className="btn btn-secondary btn-compact"
           id="btn-new-session"
           onClick={onNewSession}
-          title="Create a new clean session"
+          title="Create a random session"
         >
-          <RefreshCw size={14} />
-          <span className="btn-label">New</span>
+          <RefreshCw size={13} />
+          <span className="btn-label">Random</span>
+        </button>
+
+        {/* Custom session code creation button */}
+        <button
+          className="btn btn-secondary btn-compact"
+          id="btn-custom-session"
+          onClick={onOpenCustomSession}
+          title="Create a room with your custom code"
+        >
+          <PlusCircle size={13} />
+          <span className="btn-label">Custom</span>
         </button>
 
         {/* Connect to existing session button */}
@@ -71,11 +84,10 @@ export const Header: React.FC<HeaderProps> = ({
           onClick={onOpenConnect}
           title="Join an existing session by code"
         >
-          <Radio size={14} />
+          <Radio size={13} />
           <span className="btn-label">Connect</span>
         </button>
       </div>
     </header>
   );
 };
-

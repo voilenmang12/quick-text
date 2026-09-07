@@ -117,3 +117,26 @@ export function formatTime(timestamp: number): string {
   const date = new Date(timestamp);
   return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 }
+
+/**
+ * Tạo SHA-256 hash cho mật khẩu phòng
+ */
+export async function hashPassword(password: string): Promise<string> {
+  if (!password) return '';
+  try {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(password);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
+  } catch {
+    // Simple fallback string hashing
+    let hash = 0;
+    for (let i = 0; i < password.length; i++) {
+      hash = ((hash << 5) - hash) + password.charCodeAt(i);
+      hash |= 0;
+    }
+    return String(hash);
+  }
+}
+
