@@ -4,6 +4,20 @@ Nhật ký theo dõi các thay đổi kiến trúc và quyết định thiết k
 
 ---
 
+### [2026-09-07] - Đồng bộ Lịch sử Từ RAM (Peer-to-Peer Backfill) Cho Thiết Bị Mới Vào
+- **Chủ đề**: In-Memory History Synchronization Without Disk Persistence
+- **Nội dung thống nhất**:
+  1. **Bảo mật Quán Net (Zero-Disk)**: Không sử dụng `localStorage` hay database để tránh nguy cơ rò rỉ OTP cho người ngồi sau. Dữ liệu tin nhắn chỉ tồn tại trong RAM của các trình duyệt đang mở tab trong phiên.
+  2. **Cơ chế Backfill Tức thì**:
+     - Thiết bị mới vừa kết nối sẽ tự động phát tín hiệu `sync-req` qua kênh Realtime.
+     - Thiết bị cũ đang trực tuyến trong phòng sẽ đóng gói danh sách tin nhắn hiện tại từ RAM và bắn trả qua `sync-res`.
+     - Thiết bị mới nhận được dữ liệu, tự động lọc trùng lặp (`de-duplicate`) theo `id` và nạp vào màn hình ngay lập tức (< 0.1s).
+  3. **Tự hủy Tuyệt đối**: Khi thiết bị cuối cùng tắt tab, toàn bộ RAM được giải phóng, phòng biến mất không để lại dấu vết.
+- **Tài liệu đã cập nhật**:
+  - [QUICK_TEXT_SYSTEM.md](file:///e:/GO/quick-text/docs/architecture/core/QUICK_TEXT_SYSTEM.md)
+
+---
+
 ### [2026-09-07] - Cập nhật Tính năng Connect Code & Tinh gọn Giao diện Mobile
 - **Chủ đề**: Thay thế Reset bằng Connect Modal và Chuyển toàn bộ UI sang tiếng Anh
 - **Nội dung thống nhất**:
