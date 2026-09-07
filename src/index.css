@@ -745,16 +745,19 @@ kbd {
   }
 
   .main-layout {
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
     gap: 1.25rem;
-  }
-
-  .sidebar-card {
-    order: 2;
   }
 
   .content-area {
     order: 1;
+    width: 100%;
+  }
+
+  .sidebar-area {
+    order: 2;
+    width: 100%;
   }
 
   .navbar {
