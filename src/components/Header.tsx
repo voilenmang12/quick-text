@@ -1,5 +1,5 @@
 import React from 'react';
-import { Zap, RefreshCw, Trash2, Monitor, Smartphone } from 'lucide-react';
+import { Zap, RefreshCw, Radio, Monitor, Smartphone } from 'lucide-react';
 import type { ConnectionStatus, DeviceInfo } from '../types';
 
 interface HeaderProps {
@@ -7,7 +7,7 @@ interface HeaderProps {
   devices: DeviceInfo[];
   connectionStatus: ConnectionStatus;
   onNewSession: () => void;
-  onClearSession: () => void;
+  onOpenConnect: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -15,7 +15,7 @@ export const Header: React.FC<HeaderProps> = ({
   devices,
   connectionStatus,
   onNewSession,
-  onClearSession,
+  onOpenConnect,
 }) => {
   const isConnected = connectionStatus === 'connected';
 
@@ -58,21 +58,21 @@ export const Header: React.FC<HeaderProps> = ({
           className="btn btn-secondary btn-compact"
           id="btn-new-session"
           onClick={onNewSession}
-          title="Start a new session"
+          title="Create a new clean session"
         >
           <RefreshCw size={14} />
           <span className="btn-label">New</span>
         </button>
 
-        {/* Clear/Leave button */}
+        {/* Connect to existing session button */}
         <button
-          className="btn btn-danger btn-compact"
-          id="btn-leave-session"
-          onClick={onClearSession}
-          title="Clear session and disconnect"
+          className="btn btn-connect btn-compact"
+          id="btn-open-connect"
+          onClick={onOpenConnect}
+          title="Join an existing session by code"
         >
-          <Trash2 size={14} />
-          <span className="btn-label">Reset</span>
+          <Radio size={14} />
+          <span className="btn-label">Connect</span>
         </button>
       </div>
     </header>

@@ -3,6 +3,7 @@ import { Header } from './components/Header';
 import { SessionBridge } from './components/SessionBridge';
 import { QuickSender } from './components/QuickSender';
 import { TextStreamList } from './components/TextStreamList';
+import { ConnectModal } from './components/ConnectModal';
 import { RealtimeSession } from './services/realtime';
 import type { ConnectionStatus, DeviceInfo, StreamMessage } from './types';
 import {
@@ -39,6 +40,7 @@ export const App: React.FC = () => {
   const [deviceCount, setDeviceCount] = useState<number>(1);
   const [devices, setDevices] = useState<DeviceInfo[]>([]);
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('connecting');
+  const [isConnectModalOpen, setIsConnectModalOpen] = useState<boolean>(false);
 
   const realtimeRef = useRef<RealtimeSession | null>(null);
 
@@ -131,18 +133,17 @@ export const App: React.FC = () => {
     }
   };
 
-  // Đổi sang phiên mới
+  // Đổi sang phiên mới hoàn toàn
   const handleNewSession = () => {
     const newId = generateSessionId();
     setMessages([]);
     setSessionId(newId);
   };
 
-  // Tự hủy / xóa sạch phiên
-  const handleClearSession = () => {
-    if (confirm('Are you sure you want to end and clear this session? All ephemeral data will be permanently wiped.')) {
-      handleNewSession();
-    }
+  // Kết nối vào một phiên có sẵn qua mã code
+  const handleConnectSession = (targetCode: string) => {
+    setMessages([]);
+    setSessionId(targetCode);
   };
 
   return (
@@ -152,7 +153,7 @@ export const App: React.FC = () => {
         devices={devices}
         connectionStatus={connectionStatus}
         onNewSession={handleNewSession}
-        onClearSession={handleClearSession}
+        onOpenConnect={() => setIsConnectModalOpen(true)}
       />
 
       <main className="main-layout" id="quicktext-main">
@@ -176,6 +177,12 @@ export const App: React.FC = () => {
           />
         </section>
       </main>
+
+      <ConnectModal
+        isOpen={isConnectModalOpen}
+        onClose={() => setIsConnectModalOpen(false)}
+        onConnect={handleConnectSession}
+      />
     </div>
   );
 };
