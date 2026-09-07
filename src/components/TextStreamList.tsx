@@ -24,9 +24,9 @@ export const TextStreamList: React.FC<TextStreamListProps> = ({ messages }) => {
     <section className="stream-section" id="stream-section">
       <div className="stream-header">
         <h2 className="stream-title">
-          <span>Dòng văn bản nhận được</span>
+          <span>Received Stream</span>
           <span className="stream-count-badge" id="stream-count-badge">
-            {messages.length} mục
+            {messages.length} {messages.length === 1 ? 'item' : 'items'}
           </span>
         </h2>
       </div>
@@ -34,12 +34,11 @@ export const TextStreamList: React.FC<TextStreamListProps> = ({ messages }) => {
       {messages.length === 0 ? (
         <div className="empty-stream" id="empty-stream-placeholder">
           <div className="empty-icon">
-            <Inbox size={28} />
+            <Inbox size={22} />
           </div>
-          <div className="empty-title">Chưa có văn bản nào trong phiên này</div>
+          <div className="empty-title">No texts in this session yet</div>
           <p className="empty-subtitle">
-            Dùng điện thoại quét mã QR ở cột bên trái hoặc nhập nội dung ở trên. 
-            Mọi văn bản được gửi sẽ xuất hiện tức thì tại đây với nút sao chép 1 chạm.
+            Send text from above or pair another device via QR code below.
           </p>
         </div>
       ) : (
@@ -56,12 +55,12 @@ export const TextStreamList: React.FC<TextStreamListProps> = ({ messages }) => {
                 <div className="card-topbar">
                   <div className={`device-indicator ${msg.isSelf ? 'self' : 'remote'}`}>
                     {msg.senderDevice === 'mobile' ? (
-                      <Smartphone size={15} />
+                      <Smartphone size={14} />
                     ) : (
-                      <Monitor size={15} />
+                      <Monitor size={14} />
                     )}
                     <span>
-                      {msg.isSelf ? 'Máy này' : msg.senderName}
+                      {msg.isSelf ? 'This device' : msg.senderName}
                     </span>
                   </div>
 
@@ -69,25 +68,25 @@ export const TextStreamList: React.FC<TextStreamListProps> = ({ messages }) => {
                     {msg.contentType === 'otp' && (
                       <span className="type-pill otp">
                         <KeyRound size={11} style={{ marginRight: 3, verticalAlign: 'middle' }} />
-                        MÃ OTP
+                        OTP
                       </span>
                     )}
                     {msg.contentType === 'url' && (
                       <span className="type-pill url">
                         <Globe size={11} style={{ marginRight: 3, verticalAlign: 'middle' }} />
-                        LIÊN KẾT
+                        LINK
                       </span>
                     )}
                     {msg.contentType === 'code' && (
                       <span className="type-pill code">
                         <Code size={11} style={{ marginRight: 3, verticalAlign: 'middle' }} />
-                        MÃ NGUỒN
+                        CODE
                       </span>
                     )}
                     {msg.contentType === 'text' && (
                       <span className="type-pill text">
                         <FileText size={11} style={{ marginRight: 3, verticalAlign: 'middle' }} />
-                        VĂN BẢN
+                        TEXT
                       </span>
                     )}
 
@@ -118,8 +117,8 @@ export const TextStreamList: React.FC<TextStreamListProps> = ({ messages }) => {
                       className="open-link-btn"
                       id={`btn-open-link-${msg.id}`}
                     >
-                      <ExternalLink size={14} />
-                      <span>Mở link</span>
+                      <ExternalLink size={13} />
+                      <span>Open</span>
                     </a>
                   )}
 
@@ -131,13 +130,13 @@ export const TextStreamList: React.FC<TextStreamListProps> = ({ messages }) => {
                   >
                     {isCopied ? (
                       <>
-                        <Check size={16} />
-                        <span>ĐÃ SAO CHÉP!</span>
+                        <Check size={14} />
+                        <span>COPIED!</span>
                       </>
                     ) : (
                       <>
-                        <Copy size={16} />
-                        <span>SAO CHÉP</span>
+                        <Copy size={14} />
+                        <span>COPY</span>
                       </>
                     )}
                   </button>

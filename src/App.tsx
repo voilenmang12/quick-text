@@ -140,7 +140,7 @@ export const App: React.FC = () => {
 
   // Tự hủy / xóa sạch phiên
   const handleClearSession = () => {
-    if (confirm('Bạn có chắc muốn kết thúc và xóa sạch phiên làm việc này không? Mọi dữ liệu tạm sẽ biến mất.')) {
+    if (confirm('Are you sure you want to end and clear this session? All ephemeral data will be permanently wiped.')) {
       handleNewSession();
     }
   };

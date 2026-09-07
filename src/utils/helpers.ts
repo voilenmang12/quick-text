@@ -41,15 +41,15 @@ export function getFriendlyDeviceName(deviceType: DeviceType): string {
   if (deviceType === 'mobile') {
     if (isIOS) return 'iPhone';
     if (isAndroid) return 'Android Phone';
-    return 'Điện thoại';
+    return 'Phone';
   }
   if (deviceType === 'tablet') {
     if (isIOS) return 'iPad';
-    return 'Máy tính bảng';
+    return 'Tablet';
   }
   if (isMac) return 'Mac';
-  if (isWindows) return 'Máy tính (PC)';
-  return 'Máy tính';
+  if (isWindows) return 'Windows PC';
+  return 'Computer';
 }
 
 /**

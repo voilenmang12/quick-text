@@ -16,7 +16,7 @@ export const QuickSender: React.FC<QuickSenderProps> = ({ onSend, disabled }) =>
     const trimmed = text.trim();
     if (!trimmed || disabled) return;
     if (trimmed.length > MAX_CHAR_LIMIT) {
-      alert(`Văn bản vượt quá giới hạn ${MAX_CHAR_LIMIT} ký tự!`);
+      alert(`Text exceeds limit of ${MAX_CHAR_LIMIT.toLocaleString()} characters!`);
       return;
     }
     onSend(trimmed);
@@ -43,8 +43,7 @@ export const QuickSender: React.FC<QuickSenderProps> = ({ onSend, disabled }) =>
         }
       }
     } catch {
-      // Trình duyệt có thể từ chối quyền đọc clipboard tự động
-      alert('Vui lòng sử dụng phím tắt Ctrl + V để dán trực tiếp vào ô nhập.');
+      alert('Use Ctrl + V to paste directly into the box.');
     }
   };
 
@@ -52,7 +51,7 @@ export const QuickSender: React.FC<QuickSenderProps> = ({ onSend, disabled }) =>
   useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
-      textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 260)}px`;
+      textareaRef.current.style.height = `${Math.min(Math.max(textareaRef.current.scrollHeight, 72), 220)}px`;
     }
   }, [text]);
 
@@ -63,8 +62,8 @@ export const QuickSender: React.FC<QuickSenderProps> = ({ onSend, disabled }) =>
     <div className="sender-card" id="quick-sender-box">
       <div className="sender-header">
         <div className="sender-title">
-          <Sparkles size={16} color="#10B981" />
-          <span>Gửi văn bản đến các thiết bị</span>
+          <Sparkles size={15} color="#10B981" />
+          <span>Quick Send</span>
         </div>
         <div className={`char-counter ${isWarning ? 'warning' : ''}`} id="char-counter">
           {charCount.toLocaleString()} / {MAX_CHAR_LIMIT.toLocaleString()}
@@ -75,8 +74,8 @@ export const QuickSender: React.FC<QuickSenderProps> = ({ onSend, disabled }) =>
         ref={textareaRef}
         className="sender-textarea"
         id="sender-input-textarea"
-        rows={3}
-        placeholder="Dán mã OTP, link, ghi chú hoặc văn bản vào đây để truyền sang các máy khác..."
+        rows={2}
+        placeholder="Type or paste OTP, link, text..."
         value={text}
         onChange={(e) => setText(e.target.value.slice(0, MAX_CHAR_LIMIT))}
         onKeyDown={handleKeyDown}
@@ -85,32 +84,31 @@ export const QuickSender: React.FC<QuickSenderProps> = ({ onSend, disabled }) =>
 
       <div className="sender-footer">
         <div className="sender-shortcuts">
-          <span>Gợi ý:</span>
           <kbd>Ctrl</kbd> + <kbd>Enter</kbd>
-          <span>để gửi nhanh</span>
+          <span>to send</span>
         </div>
 
         <div className="sender-actions">
           <button
             type="button"
-            className="btn btn-secondary"
+            className="btn btn-secondary btn-sender"
             id="btn-paste-clipboard"
             onClick={handlePasteFromClipboard}
-            title="Đọc từ Clipboard máy tính"
+            title="Paste from clipboard"
           >
-            <Clipboard size={15} />
-            <span>Dán từ máy</span>
+            <Clipboard size={14} />
+            <span>Paste</span>
           </button>
 
           <button
             type="button"
-            className="btn btn-primary"
+            className="btn btn-primary btn-sender"
             id="btn-send-text"
             onClick={handleSend}
             disabled={!text.trim() || disabled}
           >
-            <Send size={15} />
-            <span>Gửi đến máy khác</span>
+            <Send size={14} />
+            <span>Send</span>
           </button>
         </div>
       </div>

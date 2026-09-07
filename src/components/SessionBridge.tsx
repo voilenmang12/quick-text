@@ -34,17 +34,16 @@ export const SessionBridge: React.FC<SessionBridgeProps> = ({
   return (
     <div className="sidebar-card" id="session-bridge-card">
       <div className="sidebar-title">
-        <span>Phiên kết nối</span>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <span>Session Bridge</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           <span className="session-badge" id="session-id-display">{sessionId}</span>
           <button
-            className="btn btn-secondary"
+            className="btn btn-secondary btn-icon-only"
             id="btn-copy-session-id"
             onClick={handleCopyId}
-            style={{ padding: '0.35rem 0.6rem' }}
-            title="Sao chép mã phiên"
+            title="Copy Session ID"
           >
-            {copiedId ? <Check size={14} color="#10B981" /> : <Copy size={14} />}
+            {copiedId ? <Check size={13} color="#10B981" /> : <Copy size={13} />}
           </button>
         </div>
       </div>
@@ -53,27 +52,27 @@ export const SessionBridge: React.FC<SessionBridgeProps> = ({
       <div className="qr-wrapper" id="qr-code-container">
         <QRCodeSVG
           value={sessionUrl}
-          size={190}
+          size={160}
           level="M"
           includeMargin={false}
           imageSettings={{
             src: '/favicon.svg',
             x: undefined,
             y: undefined,
-            height: 32,
-            width: 32,
+            height: 28,
+            width: 28,
             excavate: true,
           }}
         />
         <div className="qr-caption">
-          <QrCode size={15} color="#10B981" />
-          <span>Quét bằng Camera điện thoại</span>
+          <QrCode size={14} color="#10B981" />
+          <span>Scan with mobile camera</span>
         </div>
       </div>
 
       {/* Shareable Link */}
       <div className="link-box" id="session-link-box">
-        <Link2 size={16} color="#64748B" style={{ flexShrink: 0 }} />
+        <Link2 size={15} color="#64748B" style={{ flexShrink: 0 }} />
         <input
           type="text"
           readOnly
@@ -83,12 +82,12 @@ export const SessionBridge: React.FC<SessionBridgeProps> = ({
           onClick={(e) => (e.target as HTMLInputElement).select()}
         />
         <button
-          className="btn btn-secondary"
+          className="btn btn-secondary btn-copy-link"
           id="btn-copy-link"
           onClick={handleCopyLink}
-          style={{ padding: '0.35rem 0.65rem', fontSize: '0.78rem' }}
         >
-          {copiedLink ? <Check size={14} color="#10B981" /> : <Copy size={14} />}
+          {copiedLink ? <Check size={13} color="#10B981" /> : <Copy size={13} />}
+          <span style={{ fontSize: '0.75rem' }}>{copiedLink ? 'Copied' : 'Copy'}</span>
         </button>
       </div>
 
@@ -96,18 +95,18 @@ export const SessionBridge: React.FC<SessionBridgeProps> = ({
       <div className="steps-list">
         <div className="step-item">
           <span className="step-number">1</span>
-          <span>Dùng điện thoại quét mã QR hoặc mở link trên để ghép đôi.</span>
+          <span>Scan QR or share link with another device to pair.</span>
         </div>
         <div className="step-item">
           <span className="step-number">2</span>
-          <span>Dán văn bản hoặc mã OTP tại bất kỳ máy nào, nội dung sẽ đồng bộ tức thì.</span>
+          <span>Paste text, OTP or code anywhere to sync instantly.</span>
         </div>
       </div>
 
       {/* Privacy guarantee */}
       <div className="privacy-box" id="privacy-assurance-box">
-        <ShieldCheck size={18} style={{ flexShrink: 0 }} />
-        <span>Không lưu máy chủ • Tự động hủy dữ liệu khi đóng tab trình duyệt</span>
+        <ShieldCheck size={16} style={{ flexShrink: 0 }} />
+        <span>RAM only • Zero server logs • Auto-clears on tab close</span>
       </div>
     </div>
   );
