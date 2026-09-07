@@ -4,6 +4,21 @@ Nhật ký theo dõi các thay đổi kiến trúc và quyết định thiết k
 
 ---
 
+### [2026-09-07] - Cập nhật Tính năng Connect Code & Tinh gọn Giao diện Mobile
+- **Chủ đề**: Thay thế Reset bằng Connect Modal và Chuyển toàn bộ UI sang tiếng Anh
+- **Nội dung thống nhất**:
+  1. **Nút Connect & Modal Nhập Code**:
+     - Bỏ nút Reset gây trùng lặp tính năng với nút New.
+     - Thay bằng nút `Connect` màu Cyan: Mở popup hiện đại (Backdrop blur) cho phép người dùng nhập trực tiếp mã phòng bất kỳ (ví dụ: `Q3N4S5`) để tham gia nhanh mà không cần quét QR.
+     - Ô nhập tự động viết hoa, phông chữ Monospace lớn, hỗ trợ nhấn `Enter` để kết nối tức thì.
+  2. **Tối ưu hóa Mobile & Tiếng Anh**:
+     - Chuyển toàn bộ ngôn ngữ sang tiếng Anh (`QuickText`, `CLIPBOARD`, `Quick Send`, `Received Stream`, `Session Bridge`).
+     - Tinh gọn chiều cao các khối, đưa phần chat lên trên QR, chống tràn chữ với `overflow-wrap: anywhere;`.
+- **Tài liệu đã cập nhật**:
+  - [QUICK_TEXT_SYSTEM.md](file:///e:/GO/quick-text/docs/architecture/core/QUICK_TEXT_SYSTEM.md)
+
+---
+
 ### [2026-09-07] - Khởi tạo Thiết kế Hệ thống Quick Text (Giai đoạn 1)
 - **Chủ đề**: Quick Text - Remote Clipboard & Instant Text Transfer (Mesh Realtime Không Lưu Vết)
 - **Nội dung thống nhất**:
