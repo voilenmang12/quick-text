@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "ship": "git add . && git commit -m \"feat: update and trigger deploy\" && git push origin main"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.115.0",
